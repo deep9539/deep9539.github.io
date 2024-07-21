@@ -26,6 +26,29 @@
             color: white;
             border-color: #007bff;
         }
+
+		.fancy-button {
+		    background: linear-gradient(45deg, #ff6b6b, #ffcc5c);
+		    border: none;
+		    color: white;
+		    padding: 15px 30px;
+		    font-size: 16px;
+		    font-weight: bold;
+		    border-radius: 25px;
+		    cursor: pointer;
+		    transition: transform 0.3s ease, box-shadow 0.3s ease;
+		    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		}
+
+		.fancy-button:hover {
+		    transform: scale(1.05);
+		    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+		}
+
+		.fancy-button:active {
+		    transform: scale(0.95);
+		}
+
     </style>	
 </head>
 <body>
@@ -56,9 +79,10 @@
     }
 </script>
 <div id='explain_recession'>
-	<div id=prev>
-	<button id="prevYearButton" onclick="prevrecession()" >Previous Year</button>
-	<button id="nextYearButton" onclick="nextrecession()" >Next Year</button>
+	<div id=prev style="align-items: center; justify-content: center; margin: auto; text-align: center; margin-top: 5px;">
+		<button id="prevYearButton" onclick="prevrecession()" style="padding: 10px; border-radius: 10px;">Previous</button>
+		<button id="nextYearButton" onclick="nextrecession()" style="padding: 10px; border-radius: 10px;">Next</button>
+	</div>
 	<h3 id='recession_name' style="text-align:center"></h3>
 	<h4 id='reason' style="text-align:center"></h4>
 </div>
