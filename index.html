@@ -3,8 +3,8 @@
 <html>
 <head>
 <script src="https://d3js.org/d3.v6.js"></script>
-<script type="text/javascript" src='js/plot_graph.js' charset='utf-8'></script>
 <script type="text/javascript" src='js/index.js' charset='utf-8'></script>
+<script type="text/javascript" src='js/plot_graph.js' charset='utf-8'></script>
 <style>
         .button-container {
             display: flex;
@@ -22,6 +22,27 @@
         }
 
         .button-container button.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .plotbutton-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .plotbutton-container button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .plotbutton-container button.selected {
             background-color: #007bff;
             color: white;
             border-color: #007bff;
@@ -62,22 +83,6 @@
     <button onclick="selectButton(this, '2023/12')"  id='2023/12'>2020</button>
 </div>
 
-<script>
-    function selectButton(selectedButton, yearDate) {
-        // Get all buttons in the container
-        const buttons = document.querySelectorAll('.button-container button');
-        
-        // Remove 'selected' class from all buttons
-        buttons.forEach(button => button.classList.remove('selected'));
-        
-        // Add 'selected' class to the clicked button
-        selectedButton.classList.add('selected');
-        yearAndMonth = yearDate
-        updateIntro(yearAndMonth);
-        updateUnemploymentGraph(yearAndMonth);
-        updatePrevNextButton();
-    }
-</script>
 <div id='explain_recession'>
 	<div id=prev style="align-items: center; justify-content: center; margin: auto; text-align: center; margin-top: 5px;">
 		<button id="prevYearButton" onclick="prevrecession()" style="padding: 10px; border-radius: 10px;">Previous</button>
@@ -85,11 +90,15 @@
 	</div>
 	<h3 id='recession_name' style="text-align:center"></h3>
 	<h4 id='reason' style="text-align:center"></h4>
+	<div class="plotbutton-container">
+		<button class="selected" onclick="updatePlotType(this, 'SeasonallyAdjusted')" id='SeasonallyAdjusted'>Seasonal adjusted unemployment rate</button>
+	    <button id='NotSeasonallyAdjusted' onclick="updatePlotType(this, 'NotSeasonallyAdjusted')">Actual unemployment rate</button>
+	</div>
 </div>
 <div id='plot_graph' style="display: block;margin: 0 auto;"><svg id="unemployment_graph" style="display: block;margin: 0 auto;"></svg></div>
 <script>
 	yearAndMonth = '1984/12';
-	updateIntro(yearAndMonth);
+	updateIntro(yearAndMonth, 'SeasonallyAdjusted');
 	updateUnemploymentGraph(yearAndMonth);
 	updatePrevNextButton();
 </script>

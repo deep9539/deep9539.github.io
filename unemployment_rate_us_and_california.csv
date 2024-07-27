@@ -1,4 +1,4 @@
-Area Type,Area Name,Date,Year,Month,UnemploymentRate,NotSeasonallyAdjusted
+Area Type,Area Name,Date,Year,Month,SeasonallyAdjusted,NotSeasonallyAdjusted
 National,U.S.,1948/01,1948,January,3.4,4.0
 National,U.S.,1948/02,1948,February,3.8,4.7
 National,U.S.,1948/03,1948,March,4.0,4.5

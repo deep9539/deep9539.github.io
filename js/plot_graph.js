@@ -1,15 +1,23 @@
-function updateUnemploymentGraph(filterDate) {
+function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
     // Load the CSV data
     d3.csv("unemployment_rate_us_and_california.csv").then(function(data) {
         // Parse the date
         data.forEach(d => {
             d.Date = d3.timeParse("%Y/%m")(d.Date);
-            d.UnemploymentRate = +d.UnemploymentRate; // Ensure rate is a number
+            d.SeasonallyAdjusted = +d.SeasonallyAdjusted; // Ensure rate is a number
+            d.NotSeasonallyAdjusted = +d.NotSeasonallyAdjusted; // Ensure rate is a number
         });
 
-        // Get the full time range for the x-axis and the full range for the y-axis
+        // Get the full time range for the x-axis
         const fullDateRange = d3.extent(data, d => d.Date);
-        const fullYRange = [0, d3.max(data, d => d.UnemploymentRate)];
+
+        // Determine the full range for the y-axis based on plotType
+        const fullYRange = plotType === 'SeasonallyAdjusted' 
+            ? [0, d3.max(data, d => d.SeasonallyAdjusted)]
+            : [0, d3.max(data, d => d.NotSeasonallyAdjusted)];
+
+        console.log('Hello');
+        console.log(data)
 
         // Filter the data for the line
         const filteredData = data.filter(d => d.Date <= d3.timeParse("%Y/%m")(filterDate));
@@ -54,7 +62,7 @@ function updateUnemploymentGraph(filterDate) {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 .x(d => x(d.Date))
-                .y(d => y(d.UnemploymentRate))
+                .y(d => y(d[plotType])) // Use the selected plotType for the Y axis
             );
 
         // Add a circle marker for the tooltip
@@ -109,7 +117,7 @@ function updateUnemploymentGraph(filterDate) {
                 const d = x0 - d0.Date > d1.Date - x0 ? d1 : d0;
 
                 const focusX = x(d.Date);
-                const focusY = y(d.UnemploymentRate);
+                const focusY = y(d[plotType]);
 
                 focus.attr("transform", `translate(${focusX},${focusY})`);
                 focus.select(".tooltip-bg")
@@ -120,7 +128,7 @@ function updateUnemploymentGraph(filterDate) {
                     .text(`Date: ${d3.timeFormat("%Y/%m")(d.Date)}`);
 
                 focus.select(".tooltip-rate")
-                    .text(`Seasonally Adjusted Rate: ${d.UnemploymentRate}`);
+                    .text(`Seasonally Adjusted Rate: ${d.SeasonallyAdjusted}`);
 
                 focus.select(".tooltip-non-adjust-rate")
                     .text(`Actual Rate: ${d.NotSeasonallyAdjusted}`);
@@ -129,6 +137,7 @@ function updateUnemploymentGraph(filterDate) {
             .on("mouseout", function() {
                 focus.style("display", "none");
             });
+
         // Add the semi-transparent message
         svg.append("text")
             .attr("x", width / 2)

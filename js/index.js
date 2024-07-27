@@ -1,4 +1,5 @@
 let yearAndMonth = '1984/12';
+let plotType = 'SeasonallyAdjusted';
 
 function updateIntro(yearAndMonth) {
 	if (yearAndMonth == '2023/12') {
@@ -17,6 +18,21 @@ function updateIntro(yearAndMonth) {
 		document.getElementById("recession_name").innerHTML = "1980's Double dip recession";
 		document.getElementById("reason").innerHTML = "Principal causes of the 1980 recession included contractionary monetary policy undertaken by the Federal Reserve to combat double digit inflation and residual effects of the energy crisis. Manufacturing and construction failed to recover before more aggressive inflation reducing policy was adopted by the Federal Reserve in 1981, causing a second downturn. Due to their proximity and compounded effects, they are commonly referred to as the early 1980s recession, an example of a W-shaped or \"double dip\" recession; it remains the most recent example of such a recession in the United States.";	
 	}
+}
+
+function selectButton(selectedButton, yearDate) {
+    // Get all buttons in the container
+    const buttons = document.querySelectorAll('.button-container button');
+    
+    // Remove 'selected' class from all buttons
+    buttons.forEach(button => button.classList.remove('selected'));
+    
+    // Add 'selected' class to the clicked button
+    selectedButton.classList.add('selected');
+    yearAndMonth = yearDate
+    updateIntro(yearAndMonth);
+    updateUnemploymentGraph(yearAndMonth, plotType);
+    updatePrevNextButton();
 }
 
 function prevRecessionYear() {
@@ -51,17 +67,30 @@ function updatePrevNextButton() {
 }
 
 function updateButton() {
-	const buttons = document.querySelectorAll('button');
+	const buttons = document.querySelectorAll('.button-container button');
 	// Remove 'selected' class from all buttons
     buttons.forEach(button => button.classList.remove('selected'));
 	document.getElementById(yearAndMonth).classList.add('selected');
+}
+
+function updatePlotType(selectedButton, newPlotType) {
+	// Get all buttons in the container
+    const buttons = document.querySelectorAll('.plotbutton-container button');
+    
+    // Remove 'selected' class from all buttons
+    buttons.forEach(button => button.classList.remove('selected'));
+    
+    // Add 'selected' class to the clicked button
+    selectedButton.classList.add('selected');
+	plotType = newPlotType;
+	updateUnemploymentGraph(yearAndMonth, plotType);
 }
 
 function nextrecession() {
 	var next_year = nextRecessionYear(yearAndMonth);
 	yearAndMonth = next_year;
 	updateIntro(yearAndMonth);
-	updateUnemploymentGraph(yearAndMonth);
+	updateUnemploymentGraph(yearAndMonth, plotType);
 	updatePrevNextButton();
 	updateButton();
 }
@@ -70,7 +99,7 @@ function prevrecession() {
 	var prev_year = prevRecessionYear(yearAndMonth);
 	yearAndMonth = prev_year;
 	updateIntro(yearAndMonth);
-	updateUnemploymentGraph(yearAndMonth);
+	updateUnemploymentGraph(yearAndMonth, plotType);
 	updatePrevNextButton();
 	updateButton()
 }
