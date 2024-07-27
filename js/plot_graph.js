@@ -1,4 +1,21 @@
+function giveHighlightCount(filterDate) {
+  if (yearAndMonth == '1984/12') {
+    return 40
+  }
+  if (yearAndMonth == '1994/12') {
+    return 60
+  }
+  else if (yearAndMonth == '2012/12') {
+    return 70
+  }
+  else if (yearAndMonth == '2023/12') {
+    return 50
+  }
+  return 100;
+}
+
 function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
+    highlightCount = giveHighlightCount(filterDate)
     // Load the CSV data
     d3.csv("unemployment_rate_us_and_california.csv").then(function(data) {
         // Parse the date
@@ -16,11 +33,11 @@ function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
             ? [0, d3.max(data, d => d.SeasonallyAdjusted)]
             : [0, d3.max(data, d => d.NotSeasonallyAdjusted)];
 
-        console.log('Hello');
-        console.log(data)
-
         // Filter the data for the line
         const filteredData = data.filter(d => d.Date <= d3.timeParse("%Y/%m")(filterDate));
+
+        // Split the data for highlighting the last `highlightCount` points
+        const highlightData = filteredData.slice(-highlightCount);
 
         // Set up dimensions and margins
         const margin = {top: 20, right: 200, bottom: 100, left: 50},
@@ -54,7 +71,7 @@ function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
         svg.append("g")
             .call(d3.axisLeft(y));
 
-        // Add the line
+        // Add the blue line for the entire dataset
         svg.append("path")
             .datum(filteredData)
             .attr("fill", "none")
@@ -62,7 +79,20 @@ function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 .x(d => x(d.Date))
-                .y(d => y(d[plotType])) // Use the selected plotType for the Y axis
+                .y(d => y(d[plotType]))
+                .defined((d, i) => i < filteredData.length - highlightCount || i === filteredData.length - highlightCount) // Draw blue line up to the last highlighted point
+            );
+
+        // Add the red line for the highlighted data
+        svg.append("path")
+            .datum(filteredData)
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(d => x(d.Date))
+                .y(d => y(d[plotType]))
+                .defined((d, i) => i >= filteredData.length - highlightCount - 1) // Draw red line starting from the last point of blue line
             );
 
         // Add a circle marker for the tooltip
@@ -119,6 +149,10 @@ function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
                 const focusX = x(d.Date);
                 const focusY = y(d[plotType]);
 
+                // Check if the hovered point is in the highlighted data
+                const isHighlighted = highlightData.includes(d);
+                focus.select("circle").attr("fill", isHighlighted ? "red" : "steelblue");
+
                 focus.attr("transform", `translate(${focusX},${focusY})`);
                 focus.select(".tooltip-bg")
                     .attr("x", 10)
@@ -148,5 +182,34 @@ function updateUnemploymentGraph(filterDate, plotType = 'SeasonallyAdjusted') {
             .attr("font-size", "16px")
             .attr("font-family", "Arial")
             .text("Hover to get more information");
+
+        svg.append("text")
+          .attr("x", width - margin.right + 20) // Adjust position as needed
+          .attr("y", margin.top + 20)           // Adjust position as needed
+          .attr("text-anchor", "start")
+          .text("Recession Period");
+
+        const lastRedPoint = filteredData[filteredData.length - 1 - (highlightCount / 2)];
+
+        svg.append("line")
+          .attr("x1", x(lastRedPoint.Date))
+          .attr("y1", y(lastRedPoint[plotType]))
+          .attr("x2", width - margin.right + 10) // Adjust position to point to annotation
+          .attr("y2", margin.top + 20)           // Adjust position to point to annotation
+          .attr("stroke", "black")
+          .attr("marker-end", "url(#arrow)"); // Assuming you have an arrow marker defined
+
+        svg.append("defs").append("marker")
+          .attr("id", "arrow")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 5)
+          .attr("refY", 0)
+          .attr("markerWidth", 4)
+          .attr("markerHeight", 4)
+          .attr("orient", "auto")
+          .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("class","arrowHead");
+
     });
 }
